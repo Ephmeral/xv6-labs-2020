@@ -289,6 +289,8 @@ fork(void)
   }
   np->sz = p->sz;
 
+  np->mask = p->mask; //by wxl
+
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 
@@ -653,4 +655,16 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+uint64 getEmptyProc(void) {
+  uint64 cnt = 0;
+  struct proc *p;
+
+  for(p = proc; p < &proc[NPROC]; p++) {
+    if(p->state != UNUSED) {
+      cnt++;
+    } 
+  }
+  return cnt;
 }
