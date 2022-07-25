@@ -14,6 +14,7 @@ struct barrier {
   int round;     // Barrier round
 } bstate;
 
+
 static void
 barrier_init(void)
 {
@@ -31,6 +32,19 @@ barrier()
   // then increment bstate.round.
   //
   
+  pthread_mutex_lock(&bstate.barrier_mutex); // acquire lock
+  
+  ++bstate.nthread;
+  if (bstate.nthread == nthread) {
+    // 所有线程已到达
+    bstate.round++;
+    bstate.nthread = 0;
+    pthread_cond_broadcast(&bstate.barrier_cond);
+  } else {
+    pthread_cond_wait(&bstate.barrier_cond, &bstate.barrier_mutex);
+  }
+  
+  pthread_mutex_unlock(&bstate.barrier_mutex);  // release lock
 }
 
 static void *
